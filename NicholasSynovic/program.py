@@ -8,6 +8,17 @@ class RequestBuilder:
 		self.token = token
 		self.datetime = datetime
 
+	def build(self)	->	urllib.request.Request:
+		# Payload generated from PostMan Code generator
+		payload = "{\"query\":\"{\\n    search(query: \\\"language:Python created:<=%s\\\", type: REPOSITORY, first: 100)    {\\n        edges   {\\n            cursor\\n            node    {\\n                ... on Repository   {\\n                    createdAt\\n                    hasIssuesEnabled\\n                    nameWithOwner\\n                    defaultBranchRef    {\\n                        target  {\\n                            ... on Commit   {\\n                                history(first: 0)   {\\n                                    totalCount\\n                                }\\n                            }\\n                        }\\n                    }\\n                    issues  {\\n                        totalCount\\n                    }\\n                    pullRequests    {\\n                        totalCount\\n                    }\\n                }\\n            }\\n        }\\n    }\\n}\",\"variables\":{}}" % (self.datetime)
+		
+		headers = {
+			'Authorization': 'token %s' % (self.token),
+			'Content-Type': 'application/json'
+		}
+
+		return urllib.request.Request(url=self.url, data=payload, headers=headers)
+
 	def getDatetime(self)	->	datetime.datetime:
 		return self.datetime
 
@@ -22,17 +33,6 @@ class RequestBuilder:
 
 	def setToken(self, token:str)	->	None:
 		self.token = token
-
-	def build(self)	->	urllib.request.Request:
-		# Payload generated from PostMan Code generator
-		payload = "{\"query\":\"{\\n    search(query: \\\"language:Python created:<=%s\\\", type: REPOSITORY, first: 100)    {\\n        edges   {\\n            cursor\\n            node    {\\n                ... on Repository   {\\n                    createdAt\\n                    hasIssuesEnabled\\n                    nameWithOwner\\n                    defaultBranchRef    {\\n                        target  {\\n                            ... on Commit   {\\n                                history(first: 0)   {\\n                                    totalCount\\n                                }\\n                            }\\n                        }\\n                    }\\n                    issues  {\\n                        totalCount\\n                    }\\n                    pullRequests    {\\n                        totalCount\\n                    }\\n                }\\n            }\\n        }\\n    }\\n}\",\"variables\":{}}" % (self.datetime)
-		
-		headers = {
-			'Authorization': 'token %s' % (self.token),
-			'Content-Type': 'application/json'
-		}
-
-		return urllib.request.Request(url=self.url, data=payload, headers=headers)
 
 with open("token.txt", "r") as foo:
 	token = foo.read()
