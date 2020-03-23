@@ -33,10 +33,18 @@ class DateTimeBuilder:
 		return self.year
 
 	def incrementMinute(self, datetime:datetime.datetime)	->	datetime.datetime:
-		return None
+		try:
+			return datetime.replace(minute=datetime.minute + 1)
+		except ValueError:
+			foo = self.incrementHour(datetime=datetime)
+			return foo.replace(minute=0)
 	
 	def incrementHour(self, datetime:datetime.datetime)	->	datetime.datetime:
-		return None
+		try:
+			return datetime.replace(hour=datetime.hour + 1)
+		except ValueError:
+			foo = self.incrementDay(datetime=datetime)
+			return foo.replace(hour=0)
 
 	def incrementDay(self, datetime:datetime.datetime)	->	datetime.datetime:
 		try:
@@ -122,9 +130,9 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	dtb = DateTimeBuilder(year, month, day, hour, minute)
 	# isoDT = dtb.buildISODateTime()
 	# rb = RequestBuilder(token=token, isoDateTime=isoDT)
-	print(dtb.incrementDay(datetime=dtb.buildDateTime()))
+	print(dtb.incrementMinute(datetime=dtb.buildDateTime()))
 
-program(year=2001, month=2, day=28)
+program(year=2001, month=2, day=28, hour=23, minute=59)
 
 # print(datetime.datetime.now().isoformat())
 # foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
