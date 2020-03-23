@@ -1,4 +1,5 @@
 import datetime
+import sys
 import urllib.request
 
 class DateTimeBuilder:
@@ -10,11 +11,11 @@ class DateTimeBuilder:
 		self.hour = hour
 		self.minute = minute
 
-	def build(self)	->	datetime.datetime:
+	def buildDateTime(self)	->	datetime.datetime:
 		return datetime.datetime(year=self.year, month=self.month, day=self.day, hour=self.hour, minute=self.minute)
 
-	def buildISO(self)	->	str:
-		return self.build().isoformat()
+	def buildISODateTime(self)	->	str:
+		return self.buildDateTime().isoformat()
 
 	def getDay(self)	->	int:
 		return self.day
@@ -30,6 +31,15 @@ class DateTimeBuilder:
 
 	def getYear(self)	->	int:
 		return self.year
+
+	def incrementDay(self)	->	None:
+		return None
+
+	def incrementMonth(self)	->	None:
+		return None
+
+	def incrementYear(self)	->	None:
+		return None
 
 	def setDay(self, day:int=1)	->	None:
 		self.day = day
@@ -79,15 +89,38 @@ class RequestBuilder:
 	def setToken(self, token:str)	->	None:
 		self.token = token
 
+class RequestHandler:
+
+	def __init__(self, request:urllib.request.Request=None):
+		self.request = request
+
+	def getRequest(self)	->	urllib.request.Request:
+		return self.request
+
+	def send(self):
+		urllib.request.urlopen(url=self.request)
+
+	def setRequest(self, request:urllib.request.Request)	->	None:
+		self.request = request
+
+
+def program(iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, year:int=2020, month:int=1, day:int=1, hour:int=0, minute:int=0)	->	None:
+	token = sys.argv[1]
+	dtb = DateTimeBuilder(year, month, day, hour, minute)
+	rb = RequestBuilder(token)
+
+
 with open("token.txt", "r") as foo:
 	token = foo.read()
 	foo.close()
 
 d = DateTimeBuilder()
 
-b = RequestBuilder(token=token, isoDateTime=d.buildISO())
+b = RequestBuilder(token=token, isoDateTime=d.buildISODateTime())
 print(b.getToken())
 print(type(b.build()))
+
+program()
 
 # print(datetime.datetime.now().isoformat())
 # foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
