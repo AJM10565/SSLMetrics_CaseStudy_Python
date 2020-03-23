@@ -32,14 +32,22 @@ class DateTimeBuilder:
 	def getYear(self)	->	int:
 		return self.year
 
-	def incrementDay(self)	->	None:
-		return None
+	def incrementDay(self, datetime:datetime.datetime)	->	datetime.datetime:
+		try:
+			return datetime.replace(day=datetime.day + 1)
+		except ValueError:
+			foo = self.incrementMonth(datetime=datetime)
+			return foo.replace(day=1)
 
-	def incrementMonth(self)	->	None:
-		return None
+	def incrementMonth(self, datetime:datetime.datetime)	->	datetime.datetime:
+		try:
+			return datetime.replace(month=datetime.month + 1)
+		except ValueError:
+			foo = self.incrementYear(datetime=datetime)
+			return foo.replace(month=1)
 
-	def incrementYear(self)	->	None:
-		return None
+	def incrementYear(self, datetime:datetime.datetime)	->	datetime.datetime:
+		return datetime.replace(year=datetime.year + 1)
 
 	def setDay(self, day:int=1)	->	None:
 		self.day = day
@@ -104,23 +112,13 @@ class RequestHandler:
 		self.request = request
 
 
-def program(iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, year:int=2020, month:int=1, day:int=1, hour:int=0, minute:int=0)	->	None:
-	token = sys.argv[1]
+def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, year:int=2020, month:int=1, day:int=1, hour:int=0, minute:int=0)	->	None:
 	dtb = DateTimeBuilder(year, month, day, hour, minute)
-	rb = RequestBuilder(token)
+	# isoDT = dtb.buildISODateTime()
+	# rb = RequestBuilder(token=token, isoDateTime=isoDT)
+	print(dtb.incrementDay(datetime=dtb.buildDateTime()))
 
-
-with open("token.txt", "r") as foo:
-	token = foo.read()
-	foo.close()
-
-d = DateTimeBuilder()
-
-b = RequestBuilder(token=token, isoDateTime=d.buildISODateTime())
-print(b.getToken())
-print(type(b.build()))
-
-program()
+program(year=2001, month=2, day=28)
 
 # print(datetime.datetime.now().isoformat())
 # foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
