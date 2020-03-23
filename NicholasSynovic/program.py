@@ -153,9 +153,3 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	rh.send()
 	print(rh.loadResponse())
 program(token=sys.argv[1])
-
-# print(datetime.datetime.now().isoformat())
-# foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
-# print(str(foo.isoformat()))
-# bar = foo.replace(year=2020)
-# print(bar)
