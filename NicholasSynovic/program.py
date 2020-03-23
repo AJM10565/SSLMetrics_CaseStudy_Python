@@ -90,12 +90,14 @@ class RequestBuilder:
 		# Payload generated from PostMan code generator
 		payload = "{\"query\":\"{\\n    search(query: \\\"language:Python created:<=%s\\\", type: REPOSITORY, first: 100)    {\\n        edges   {\\n            cursor\\n            node    {\\n                ... on Repository   {\\n                    createdAt\\n                    hasIssuesEnabled\\n                    nameWithOwner\\n                    defaultBranchRef    {\\n                        target  {\\n                            ... on Commit   {\\n                                history(first: 0)   {\\n                                    totalCount\\n                                }\\n                            }\\n                        }\\n                    }\\n                    issues  {\\n                        totalCount\\n                    }\\n                    pullRequests    {\\n                        totalCount\\n                    }\\n                }\\n            }\\n        }\\n    }\\n}\",\"variables\":{}}" % (self.isoDateTime)
 		
-		headers = {
-			'Authorization': 'token %s' % (self.token),
+		h = {
+			'Authorization': 'bearer ' + self.token,
 			'Content-Type': 'application/json'
 		}
 
-		return urllib.request.Request(url=self.url, data=payload, headers=headers)
+		payload = bytes(payload, "ascii")
+
+		return urllib.request.Request(url=self.url, data=payload, headers=h)
 
 	def getISODateTime(self)	->	str:
 		return self.datetime
@@ -128,12 +130,13 @@ class RequestHandler:
 		return self.response
 
 	def loadResponse(self)	->	dict:
-		foo = json.loads(self.getResponse())
+		foo = self.getResponse().read()
 		self.closeResponse()
+		json.loads(foo)
 		return foo
 
 	def send(self):
-		self.response = urllib.request.urlopen(url=self.request)
+		self.response = urllib.request.urlopen(self.getRequest())
 
 	def setRequest(self, request:urllib.request.Request)	->	None:
 		self.request = request
@@ -144,9 +147,12 @@ class RequestHandler:
 def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, year:int=2020, month:int=1, day:int=1, hour:int=0, minute:int=0)	->	None:
 	dtb = DateTimeBuilder(year, month, day, hour, minute)
 	isoDT = dtb.buildISODateTime()
-	while True:
-		if 
 	rb = RequestBuilder(token=token, isoDateTime=isoDT)
+	req = rb.build()
+	rh = RequestHandler(request=req)
+	rh.send()
+	print(rh.loadResponse())
+program(token=sys.argv[1])
 
 # print(datetime.datetime.now().isoformat())
 # foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
