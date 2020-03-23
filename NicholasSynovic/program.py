@@ -1,6 +1,7 @@
 import datetime
 import sys
 import urllib.request
+import json
 
 class DateTimeBuilder:
 
@@ -115,24 +116,37 @@ class RequestHandler:
 
 	def __init__(self, request:urllib.request.Request=None):
 		self.request = request
+		self.response = None
+
+	def closeResponse(self)	->	None:
+		self.response.close()
 
 	def getRequest(self)	->	urllib.request.Request:
 		return self.request
 
+	def getResponse(self)	->	None:
+		return self.response
+
+	def loadResponse(self)	->	dict:
+		foo = json.loads(self.getResponse())
+		self.closeResponse()
+		return foo
+
 	def send(self):
-		urllib.request.urlopen(url=self.request)
+		self.response = urllib.request.urlopen(url=self.request)
 
 	def setRequest(self, request:urllib.request.Request)	->	None:
 		self.request = request
-
-
+	
+	def setResponse(self, response)	->	None:
+		self.response = response
+	
 def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, year:int=2020, month:int=1, day:int=1, hour:int=0, minute:int=0)	->	None:
 	dtb = DateTimeBuilder(year, month, day, hour, minute)
-	# isoDT = dtb.buildISODateTime()
-	# rb = RequestBuilder(token=token, isoDateTime=isoDT)
-	print(dtb.incrementMinute(datetime=dtb.buildDateTime()))
-
-program(year=2001, month=2, day=28, hour=23, minute=59)
+	isoDT = dtb.buildISODateTime()
+	while True:
+		if 
+	rb = RequestBuilder(token=token, isoDateTime=isoDT)
 
 # print(datetime.datetime.now().isoformat())
 # foo = datetime.datetime(year=2019, month=12, day=31, hour=19)
