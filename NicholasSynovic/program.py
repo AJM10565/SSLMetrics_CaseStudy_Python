@@ -32,6 +32,12 @@ class DateTimeBuilder:
 	def getYear(self)	->	int:
 		return self.year
 
+	def incrementMinute(self, datetime:datetime.datetime)	->	datetime.datetime:
+		return None
+	
+	def incrementHour(self, datetime:datetime.datetime)	->	datetime.datetime:
+		return None
+
 	def incrementDay(self, datetime:datetime.datetime)	->	datetime.datetime:
 		try:
 			return datetime.replace(day=datetime.day + 1)
