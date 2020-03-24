@@ -1,29 +1,62 @@
+import datetime
 import sys
 sys.path.append("/NicholasSynovic/")
 
 from NicholasSynovic import DateTimeBuilder
 from NicholasSynovic import RequestBuilder
 from NicholasSynovic import RequestHandler
+
+def askIntQuestion(question:str, lowerBound:int, upperBound:int)	->	int:
+	while True:
+		try:
+			response = int(input(question))
+			if response < lowerBound:
+				raise ValueError
+			if response > upperBound:
+				raise ValueError
+			return response
+		except ValueError:
+			print("Invalid input.\nInput a number between the constraints.\n")
 	
+def askBoolQuestion(question:str)	->	bool:
+	while True:
+		try:
+			response = input(question).lower().strip().replace(" ", "")
+			if response == "yes":
+				return True
+			if response == "no":
+				return False
+			else:
+				raise ValueError
+		except ValueError:
+			print("Invalid input.\nInput a number between the constraints.\n")
+
 def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, minuteSpacing:int=15)	->	None:
-	#	Initalizes DateTimeBuilder class
-	dtb = DateTimeBuilder.DateTimeBuilder()
-	
+	# Stores the current datetime inf
+	currentDate = datetime.datetime.now()
+
+	datetimeQuestion = lambda datetimePosition, datetimeValue: "What %s do you want the program to search repositories from? (2000 - %s)? " % (datetimePosition, str(datetimeValue))
+	checkQuestion = lambda datetimePosition: "Do you want the program to search for repositories starting at a specific %s (yes/no)? " % (datetimePosition)
+
 	# User input for getting the datetime inforation
-	year = int(input("What year do you want the program to start collecting repositories from? (2000 - )? "))
-	month = int(input("What month do you want the program to start collecting repositories form? (1 - 12)? "))
-	day = int(input("What day do you want the program to start collecting repositories from (1 - 28/29/31)? "))
+	year = askIntQuestion(question=datetimeQuestion("year", currentDate.year))
+	month = askIntQuestion(question=datetimeQuestion("month", currentDate.month))
+	day = askIntQuestion(question=datetimeQuestion("day", currentDate.day))
 
 	# Checks if the user wants to collect repositories by the hour
-	check = input("Do you want to collect repositories within a specific hour (yes/no)? ").lower()
-	if check == "yes":
-		hour = int(input("What hour do you want the program to start collecting repositories from (0 - 23)? "))
+	if askBoolQuestion(question=checkQuestion("hour")):
+		hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
+	else:
+		hour = None
 	
 	# Checks if the user wants to collect repositories by the minute
-	check = input("Do you want to collect repositories within a specific minute (yes/no)? ").lower()
-	if check == "yes":
-		minute = int(input("What minute do you want the program to start collecting repositories from (0 - 23)? "))
+	if askBoolQuestion(question=checkQuestion(datetimePosition="minute")):
+		minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=currentDate.minute))
+	else:
+		minute = None
 
+	#	Initalizes DateTimeBuilder class
+	dtb = DateTimeBuilder.DateTimeBuilder()
 
 	#	Sets the values of the FIRST datetime to be searched for
 	dtb.setYear(year=year)
