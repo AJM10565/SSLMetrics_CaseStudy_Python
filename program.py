@@ -45,13 +45,19 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 
 	# Checks if the user wants to collect repositories by the hour
 	if askBoolQuestion(question=checkQuestion("hour")):
-		hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
+		if currentDate.hour == 0:
+			hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=23))
+		else:	
+			hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
 	else:
 		hour = None
 	
 	# Checks if the user wants to collect repositories by the minute
 	if askBoolQuestion(question=checkQuestion(datetimePosition="minute")):
-		minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=currentDate.minute))
+		if currentDate.minute == 0:
+			minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=59))
+		else:
+			minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=currentDate.minute))
 	else:
 		minute = None
 
