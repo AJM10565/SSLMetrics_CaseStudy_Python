@@ -37,11 +37,14 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	#	Takes the response and opens it as a dict
 	foo = rh.loadResponse()
 
-	# Writes the response to a file for storage
-	with open("test.json", "w") as file:
-		file.write(str(foo))
-		file.close()
+	bar = foo["data"]["search"]["edges"][0]["node"]
 
-	return None
+	print(bar)
+	# # Writes the response to a file for storage
+	# with open("test.json", "w") as file:
+	# 	file.write(str(foo))
+	# 	file.close()
+
+	# return None
 	
 program(token=sys.argv[1])
