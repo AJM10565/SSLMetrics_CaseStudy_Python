@@ -19,8 +19,8 @@ class RequestHandler:
 	def loadResponse(self)	->	dict:
 		foo = self.getResponse().read()
 		self.closeResponse()
-		json.loads(foo)
-		return foo
+		return json.loads(foo)
+		
 
 	def send(self):
 		self.response = urllib.request.urlopen(self.getRequest())
