@@ -1,55 +1,58 @@
+import datetime
 import urllib.request
 
 class RequestBuilder:
 
-	def __init__(self, token:str, isoDateTimeSTART:str=None, isoDateTimeEND:str=None)	->	None:
+	def __init__(self, token:str, datetime:datetime.datetime)	->	None:
 		self.url = "https://api.github.com/graphql"
 		self.token = token
-		self.isoDateTimeSTART = isoDateTimeSTART
-		self.ISODateTimeEND = isoDateTimeEND
+		self.datetime = datetime
 
-	def build(self, singleDatetime:bool=True, betweenDatetimes:bool=False)	->	urllib.request.Request:
+	def createNewDatetimeFromOld(self, **kwargs)	->	datetime.datetime:	#	TODO: Move this into DateTimeBuilder at some point
+		'''
+This utilizes the current datetime stored in self.datetime and returns a new datetime utilizing the current one as a base.
+		'''
+		foo = self.datetime
+		if "year" in kwargs:
+			foo.replace(year=int(kwargs["year"]))
+		if "month" in kwargs:
+			foo.replace(month=int(kwargs["month"]))
+		if "day" in kwargs:
+			foo.replace(day=int(kwargs["day"]))
+		if "hour" in kwargs:
+			foo.replace(hour=int(kwargs["hour"]))
+		if "minute" in kwargs:
+			foo.replace(minute=int(kwargs["minute"]))
+		return foo
+
+	def getDatetime(self)	->	datetime.datetime:
+		return self.datetime
+
+	def getToken(self)	->	str:
+		return self.token
+
+	def getURL(self)	->	str:
+		return self.url
+
+	def setDatetime(self, datetime:datetime.datetime)	->	None:
+		self.datetime = datetime
+
+	def setToken(self, token:str=None)	->	None:
+		self.token = token
+
+	def setURL(self, url:str=None)	->	None:
+		self.url = url
+
+
+	def build(self)	->	urllib.request.Request:
 		# Payload generated from PostMan code generator
-		if singleDatetime and betweenDatetimes:
-			print("Incompatible queries.\nDefaulting to singleDatetime")
+		payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s..%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (isoDateTimeSTART, isoDateTimeEND)
 
-			foo = self.isoDateTimeSTART
-			bar = foo.find("T")
-			if foo[bar:] == "T00:00:00":
-				datetime = foo[0:bar]
-
-			payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (datetime)
-			
-		elif singleDatetime and not betweenDatetimes:
-			payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (self.isoDateTimeSTART)
-		
-		elif not singleDatetime and betweenDatetimes:
-			payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s..%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (isoDateTimeSTART, isoDateTimeEND)
-
-		else:
-			print("Incompatible queries.\nExiting program")
-			quit()
-
-		h = {
+		headers = {
 			'Authorization': 'bearer ' + self.token,
 			'Content-Type': 'application/json'
 		}
 
 		payload = bytes(payload, "ascii")
 
-		return urllib.request.Request(url=self.url, data=payload, headers=h)
-
-	def getISODateTime(self)	->	str:
-		return self.datetime
-
-	def getToken(self)	->	str:
-		return self.token
-	
-	def getURL(self)	->	str:
-		return self.url
-
-	def setDatetime(self, isoDateTime:str)	->	None:
-		self.datetime = datetime
-
-	def setToken(self, token:str)	->	None:
-		self.token = token
+		return urllib.request.Request(url=self.url, data=payload, headers=headers)
