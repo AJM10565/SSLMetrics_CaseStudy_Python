@@ -60,13 +60,17 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 		day = askIntQuestion(question=datetimeQuestion(datetimePosition="day", lowerBound=1, upperBound=calendar.monthrange(year=year, month=month)[1]), lowerBound=1, upperBound=calendar.monthrange(year=year, month=month)[1])
 
 	#	Checks if the user wants to collect repositories by the hour
-	if askBoolQuestion(question=checkQuestion("hour")):
+	if [year, month, day] == [currentDate.year, currentDate.month, currentDate.day]:
 		if currentDate.hour == 0:
-			hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=23))
-		else:	
-			hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
-	else:
-		hour = None
+			hour = 0
+		else:
+			if askBoolQuestion(question=checkQuestion("hour")):
+				if currentDate.hour == 0:
+					hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=23))
+				else:	
+					hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
+			else:
+				hour = None
 	
 	#	Checks if the user wants to collect repositories by the minute
 	if askBoolQuestion(question=checkQuestion(datetimePosition="minute")):
