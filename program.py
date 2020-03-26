@@ -36,6 +36,8 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	#	Initalizes DateTimeBuilder class
 	dtb = DateTimeBuilder.DateTimeBuilder()
 	rb = RequestBuilder.RequestBuilder(token=token)
+	rh = RequestHandler.RequestHandler()
+
 	
 	#	Stores the current datetime info
 	currentDate = datetime.datetime.now()
@@ -76,7 +78,10 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 			else:
 				hour = 0
 	else:
-		hour = askIntQuestion(datetimeQuestion("hour", 0, 23), 0, 23)
+		if askBoolQuestion(question=checkQuestion("hour")):
+			hour = askIntQuestion(datetimeQuestion("hour", 0, 23), 0, 23)
+		else:
+			hour = 0
 	
 	#	Checks if the user wants to collect repositories by the minute
 	if hour == currentDate.hour:
@@ -91,7 +96,10 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 			else:
 				minute = 0
 	else:
-		minute = askIntQuestion(datetimeQuestion("minute", 0, 59), 0, 59)
+		if askBoolQuestion(question=checkQuestion("minute")):
+			minute = askIntQuestion(datetimeQuestion("minute", 0, 59), 0, 59)
+		else:
+			minute = 0
 
 	#	Sets the values of the FIRST datetime to be searched for
 	dtb.setYear(year=year)
@@ -104,20 +112,54 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	if minute is not None:
 		dtb.setMinute(minute=minute)
 
+	dt = dtb.buildDateTime()
+
+	print("\n")
+
 	while True:
-		# Makes a datetime object
-		dt = dtb.buildDateTime()
-		isoDT = dtb.buildISODateTime(dt=dt)
+		# 	Makes a datetime object that is incremented by 15 minutes
+		newDT = dtb.incrementMinuteByAmount(dt, 15)
 		
-		#	Debugging print
-		print(str(dt) + " is the datetime object")
+		#	Makes ISO compatible datetime strings
+		isoDT = dtb.buildISODateTime(dt=dt)
+		newISODT = dtb.buildISODateTime(dt=newDT)
+		
+		#	Debugging prints
+		print(str(dt) + " is the original datetime object")
+		print(str(newDT) + " is the updated datetime object")
 		print(isoDT + " is the ISO datetime string")
+		print(newISODT + " is the updated ISO datetime string")
+		
+		#	Create the request
+		req = rb.build(isoDatetimeSTART=isoDT, isoDatetimeEND=newISODT)
 
-		rb.setDatetime(datetime=dt)
-		print("Set RequestBuilder datetime to " + str(dt))
+		print("Created GitHub GraphQL request object")
+		print("Sending request...")
+		
+		rh.send(req)
 
-		print(dtb.incrementDay(dt))
+		response = rh.loadResponse()
 
-		break
+		fn = isoDT + "-" + newISODT + ".txt"
+
+		with open(fn, "w") as file:
+
+			root = response["data"]["search"]["pageInfo"]
+			lineList = [isoDT, newISODT, str(root["hasNextPage"]), str(root["endCursor"])]
+			line = ', '.join(lineList) + "\n"
+			file.write(line)
+
+			for x in response["data"]["search"]["edges"]:
+				root = x["node"]
+				# Created at, username, repository, commits, issues, pull
+				lineList = [root["createdAt"], root["nameWithOwner"].split("/")[0], root["nameWithOwner"].split("/")[1], str(root["defaultBranchRef"]["target"]["history"]["totalCount"]), str(root["issues"]["totalCount"]), str(root["pullRequests"]["totalCount"])]
+				line = ', '.join(lineList) + "\n"
+				file.write(line)
+
+			file.close()
+		if newDT >= datetime.datetime.now():
+			break
+		else:
+			dt = newDT
 	
 program(token=sys.argv[1])

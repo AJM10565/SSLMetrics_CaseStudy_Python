@@ -9,10 +9,6 @@ class RequestBuilder:
 	def __init__(self, token:str)	->	None:
 		self.url = "https://api.github.com/graphql"
 		self.token = token
-		self.datetime = None
-
-	def getDatetime(self)	->	datetime.datetime:
-		return self.datetime
 
 	def getToken(self)	->	str:
 		return self.token
@@ -20,19 +16,11 @@ class RequestBuilder:
 	def getURL(self)	->	str:
 		return self.url
 
-	def setDatetime(self, datetime:datetime.datetime)	->	None:
-		self.datetime = datetime
-
 	def setToken(self, token:str=None)	->	None:
 		self.token = token
 
 	def setURL(self, url:str=None)	->	None:
 		self.url = url
-
-	# def makeISODatetimes(self, dt:datetime.datetime=None)	->	tuple:
-	# 	dtb = DateTimeBuilder.DateTimeBuilder(year=dt.year, month=dt.month, day=dt.day, hour=dt.hour, minute=dt.minute)
-	# 	foo = dtb.buildISODateTime()
-	# 	bar 
 
 	def build(self, isoDatetimeSTART:str, isoDatetimeEND)	->	urllib.request.Request:
 		# Payload generated from PostMan code generator
