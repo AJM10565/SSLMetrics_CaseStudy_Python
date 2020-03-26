@@ -1,29 +1,15 @@
 import datetime
 import urllib.request
+import sys
+sys.path.append("/NicholasSynovic/")
 
+from NicholasSynovic import DateTimeBuilder
 class RequestBuilder:
 
-	def __init__(self, token:str, datetime:datetime.datetime)	->	None:
+	def __init__(self, token:str)	->	None:
 		self.url = "https://api.github.com/graphql"
 		self.token = token
-		self.datetime = datetime
-
-	def createNewDatetimeFromOld(self, **kwargs)	->	datetime.datetime:	#	TODO: Move this into DateTimeBuilder at some point
-		'''
-This utilizes the current datetime stored in self.datetime and returns a new datetime utilizing the current one as a base.
-		'''
-		foo = self.datetime
-		if "year" in kwargs:
-			foo.replace(year=int(kwargs["year"]))
-		if "month" in kwargs:
-			foo.replace(month=int(kwargs["month"]))
-		if "day" in kwargs:
-			foo.replace(day=int(kwargs["day"]))
-		if "hour" in kwargs:
-			foo.replace(hour=int(kwargs["hour"]))
-		if "minute" in kwargs:
-			foo.replace(minute=int(kwargs["minute"]))
-		return foo
+		self.datetime = None
 
 	def getDatetime(self)	->	datetime.datetime:
 		return self.datetime
@@ -43,10 +29,14 @@ This utilizes the current datetime stored in self.datetime and returns a new dat
 	def setURL(self, url:str=None)	->	None:
 		self.url = url
 
+	# def makeISODatetimes(self, dt:datetime.datetime=None)	->	tuple:
+	# 	dtb = DateTimeBuilder.DateTimeBuilder(year=dt.year, month=dt.month, day=dt.day, hour=dt.hour, minute=dt.minute)
+	# 	foo = dtb.buildISODateTime()
+	# 	bar 
 
-	def build(self)	->	urllib.request.Request:
+	def build(self, isoDatetimeSTART:str, isoDatetimeEND)	->	urllib.request.Request:
 		# Payload generated from PostMan code generator
-		payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s..%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (isoDateTimeSTART, isoDateTimeEND)
+		payload = "{\"query\":\"{\\n  search(query: \\\"language:Python created:%s..%s\\\", type: REPOSITORY, first: 100) {\\n    edges {\\n      cursor\\n      node {\\n        ... on Repository {\\n          createdAt\\n          hasIssuesEnabled\\n          nameWithOwner\\n          defaultBranchRef {\\n            target {\\n              ... on Commit {\\n                history(first: 0) {\\n                  totalCount\\n                }\\n              }\\n            }\\n          }\\n          issues {\\n            totalCount\\n          }\\n          pullRequests {\\n            totalCount\\n          }\\n        }\\n      }\\n    }\\n    pageInfo {\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n      startCursor\\n    }\\n  }\\n}\\n\",\"variables\":{}}" % (isoDatetimeSTART, isoDatetimeEND)
 
 		headers = {
 			'Authorization': 'bearer ' + self.token,

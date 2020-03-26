@@ -1,4 +1,6 @@
 import datetime
+import calendar
+from dateutil.relativedelta import relativedelta
 
 class DateTimeBuilder:
 	'''
@@ -35,9 +37,9 @@ Creates an ISO compatible datetime string from the values provided in the inital
 :param dt: An optional datetime object.
 		'''
 		if dt is None:
-			return self.buildDateTime().isoformat()
+			return self.buildDateTime().isoformat()[0:-3]
 		else:
-			return dt.isoformat()
+			return dt.isoformat()[0:-3]
 
 	def getDay(self)	->	int:
 		'''
@@ -71,48 +73,43 @@ Return the current value of the class variable year.
 
 	def incrementDay(self, dt:datetime.datetime)	->	datetime.datetime:
 		'''
-Increments the day of a datetime object by one.
+Increments the day of a datetime object by one and returns a new object.
 :param dt: A datetime object.
 		'''
-		try:
-			return datetime.replace(day=dt.day + 1)
-		except ValueError:
-			foo = self.incrementMonth(dt=dt)
-			return foo.replace(day=1)
+		return dt + datetime.timedelta(days=1)
 	
+	def incrementDayByAmount(self, dt:datetime.datetime, amount:int)	->	datetime.datetime:
+		return dt + datetime.timedelta(days=amount)
+
 	def incrementHour(self, dt:datetime.datetime)	->	datetime.datetime:
 		'''
 Increments the hour of a datetime object by one.
 :param dt: A datetime object.
 		'''
-		try:
-			return dt.replace(hour=dt.hour + 1)
-		except ValueError:
-			foo = self.incrementDay(dt=dt)
-			return foo.replace(hour=0)
+		return dt + datetime.timedelta(hours=1)
+
+	def incrementHourByAmount(self, dt:datetime.datetime, amount:int)	->	datetime.datetime:
+		return dt + datetime.timedelta(hours=amount)
 
 	def incrementMinute(self, dt:datetime.datetime)	->	datetime.datetime:
 		'''
 Increments the minute of a datetime object by one.
 :param dt: A datetime object.
 		'''
-		try:
-			return dt.replace(minute=dt.minute + 1)
-		except ValueError:
-			foo = self.incrementHour(dt=dt)
-			return foo.replace(minute=0)
-	
+		return dt + datetime.timedelta(minutes=1)
 
-	def incrementMonth(self, dt:datetime.datetime)	->	datetime.datetime:
+	def incrementMinuteByAmount(self, dt:datetime.datetime, amount:int)	->	datetime.datetime:
+		return dt + datetime.timedelta(minutes=amount)
+
+	def incrementMonth(self, dt:datetime.datetime)	->	datetime.datetime:	#	TODO: Convert this into standard python
 		'''
 Increments the month of a datetime object by one.
 :param dt: A datetime object.
 		'''
-		try:
-			return dt.replace(month=dt.month + 1)
-		except ValueError:
-			foo = self.incrementYear(dt=dt)
-			return foo.replace(month=1)
+		return dt + relativedelta(months=1)
+	
+	def incrementMonthByAmount(self, dt:datetime.datetime, amount:int)	->	datetime.datetime:	#	TODO: Convert this into standard python
+		return dt + relativedelta(months=amount)
 
 	def incrementYear(self, dt:datetime.datetime)	->	datetime.datetime:
 		'''
@@ -120,6 +117,9 @@ Increments the year of a datetime object by one.
 :param dt: A datetime object.
 		'''
 		return dt.replace(year=dt.year + 1)
+
+	def incrementYearByAmount(self, dt:datetime.datetime, amount:int)	->	datetime.datetime:
+		return dt.replace(year=dt.year + amount)
 
 	def setDay(self, day:int=1)	->	None:
 		'''
@@ -155,3 +155,22 @@ Changes the current value of the class variable year to a different value.
 :param year: An int that represents the year portion of a datetime object.\n
 		'''
 		self.year = year
+
+
+	def createNewDatetimeFromOld(self, oldDatetime:datetime.datetime, **kwargs)	->	datetime.datetime:	#	TODO: Move this into DateTimeBuilder at some point
+		'''
+This utilizes the current datetime stored in self.datetime and returns a new datetime utilizing the current one as a base.
+		'''
+		if "year" in kwargs:
+			oldDatetime.replace(year=int(kwargs["year"]))
+		if "month" in kwargs:
+			oldDatetime.replace(month=int(kwargs["month"]))
+		if "day" in kwargs:
+			oldDatetime.replace(day=int(kwargs["day"]))
+		if "hour" in kwargs:
+			oldDatetime.replace(hour=int(kwargs["hour"]))
+		if "minute" in kwargs:
+			oldDatetime.replace(minute=int(kwargs["minute"]))
+
+		print(kwargs)
+		return oldDatetime

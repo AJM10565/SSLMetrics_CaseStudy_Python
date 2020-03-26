@@ -33,6 +33,10 @@ def askBoolQuestion(question:str)	->	bool:
 			print("Invalid input.\nInput a number between the constraints.\n")
 
 def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, minuteSpacing:int=15)	->	None:
+	#	Initalizes DateTimeBuilder class
+	dtb = DateTimeBuilder.DateTimeBuilder()
+	rb = RequestBuilder.RequestBuilder(token=token)
+	
 	#	Stores the current datetime info
 	currentDate = datetime.datetime.now()
 
@@ -66,23 +70,28 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 		else:
 			if askBoolQuestion(question=checkQuestion("hour")):
 				if currentDate.hour == 0:
-					hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=23))
+					hour = askIntQuestion(datetimeQuestion("hour", 0, 23), 0, 23)
 				else:	
-					hour = askIntQuestion(question=datetimeQuestion(datetimePosition="hour", datetimeValue=currentDate.hour))
+					hour = askIntQuestion(datetimeQuestion("hour", 0, currentDate.hour), 0, currentDate.hour)
 			else:
-				hour = None
+				hour = 0
+	else:
+		hour = askIntQuestion(datetimeQuestion("hour", 0, 23), 0, 23)
 	
 	#	Checks if the user wants to collect repositories by the minute
-	if askBoolQuestion(question=checkQuestion(datetimePosition="minute")):
+	if hour == currentDate.hour:
 		if currentDate.minute == 0:
-			minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=59))
+			minute = 0
 		else:
-			minute = askIntQuestion(question=datetimeQuestion(datetimePosition="minute", datetimeValue=currentDate.minute))
+			if askBoolQuestion(checkQuestion("minute")):
+				if currentDate.hour == 0:
+					minute = askIntQuestion(datetimeQuestion("minute", 0, 59), 0, 59)
+				else:	
+					minute = askIntQuestion(datetimeQuestion("minute", 0, currentDate.minute), 0, currentDate.minute)
+			else:
+				minute = 0
 	else:
-		minute = None
-
-	#	Initalizes DateTimeBuilder class
-	dtb = DateTimeBuilder.DateTimeBuilder()
+		minute = askIntQuestion(datetimeQuestion("minute", 0, 59), 0, 59)
 
 	#	Sets the values of the FIRST datetime to be searched for
 	dtb.setYear(year=year)
@@ -95,39 +104,20 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	if minute is not None:
 		dtb.setMinute(minute=minute)
 
-	#	Makes an ISO compatible datetime string
-	dt = dtb.buildDateTime()
+	while True:
+		# Makes a datetime object
+		dt = dtb.buildDateTime()
+		isoDT = dtb.buildISODateTime(dt=dt)
+		
+		#	Debugging print
+		print(str(dt) + " is the datetime object")
+		print(isoDT + " is the ISO datetime string")
 
-	#	Debugging print
-	print(dt)
+		rb.setDatetime(datetime=dt)
+		print("Set RequestBuilder datetime to " + str(dt))
 
-	rb = RequestBuilder.RequestBuilder(token=token, datetime=dt)
+		print(dtb.incrementDay(dt))
 
-	rb.createNewDatetimeFromOld(year="apple")
-
-	# #	Creates a request using the ISO compatible datetime string
-	# rb = RequestBuilder.RequestBuilder(token=token, isoDateTimeSTART=dtISO)
-
-	# #	Makes the request class
-	# req = rb.build(True, True)
-
-	# #	Creates an object that can send requests and recieve responses
-	# rh = RequestHandler.RequestHandler(request=req)
-
-	# #	Sends the request ands waits a response
-	# rh.send()
-
-	# #	Takes the response and opens it as a dict
-	# foo = rh.loadResponse()
-
-	# bar = foo["data"]["search"]["pageInfo"]["hasNextPage"]
-
-	# print(bar)
-	# # Writes the response to a file for storage
-	# with open("test.json", "w") as file:
-	# 	file.write(str(foo))
-	# 	file.close()
-
-	return None
+		break
 	
 program(token=sys.argv[1])
