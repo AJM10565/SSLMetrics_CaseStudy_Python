@@ -1,9 +1,9 @@
 import datetime
 import urllib.request
 import sys
-sys.path.append("/NicholasSynovic/")
+sys.path.append("/libs/")
 
-from NicholasSynovic import DateTimeBuilder
+from libs import DateTimeBuilder
 class RequestBuilder:
 
 	def __init__(self, token:str)	->	None:

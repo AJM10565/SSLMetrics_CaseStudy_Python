@@ -1,11 +1,13 @@
 import datetime
 import calendar
 import sys
-sys.path.append("/NicholasSynovic/")
+import os
 
-from NicholasSynovic import DateTimeBuilder
-from NicholasSynovic import RequestBuilder
-from NicholasSynovic import RequestHandler
+sys.path.append("/libs/")
+
+from libs import DateTimeBuilder
+from libs import RequestBuilder
+from libs import RequestHandler
 
 def askIntQuestion(question:str, lowerBound:int, upperBound:int)	->	int:
 	while True:
@@ -37,8 +39,10 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	dtb = DateTimeBuilder.DateTimeBuilder()
 	rb = RequestBuilder.RequestBuilder(token=token)
 	rh = RequestHandler.RequestHandler()
-
 	
+	# Creates/Check for the output path
+
+
 	#	Stores the current datetime info
 	currentDate = datetime.datetime.now()
 
