@@ -1,7 +1,8 @@
+from os import  getcwd, chdir, mkdir
+from os.path import isdir
 import datetime
 import calendar
 import sys
-import os
 
 sys.path.append("/libs/")
 
@@ -32,8 +33,16 @@ def askBoolQuestion(question:str)	->	bool:
 			else:
 				raise ValueError
 		except ValueError:
-			print("Invalid input.\nInput a number between the constraints.\n")
+			print("Invalid input.\nInput a number between the constraints.\n")	
 
+def makeFolder(dir:str)	->	bool:
+	try: 
+		if not isdir(dir):
+			mkdir(dir)
+	except OSError:
+		pass
+	return True
+		
 def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterateMinutes:bool=False, minuteSpacing:int=15)	->	None:
 	#	Initalizes DateTimeBuilder class
 	dtb = DateTimeBuilder.DateTimeBuilder()
@@ -41,7 +50,9 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 	rh = RequestHandler.RequestHandler()
 	
 	# Creates/Check for the output path
-
+	makeFolder(dir="output")
+	makeFolder(dir="output/unprocessed")
+	makeFolder(dir="output/processed")
 
 	#	Stores the current datetime info
 	currentDate = datetime.datetime.now()
@@ -120,6 +131,9 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 
 	print("\n")
 
+	folderLoop = 0	# This is meant to stop creating duplicate folders and reduce processing time
+	rootDir = getcwd()
+	currentSavingDir = ""
 	while True:
 		# 	Makes a datetime object that is incremented by 15 minutes
 		newDT = dtb.incrementMinuteByAmount(dt, 15)
@@ -128,6 +142,22 @@ def program(token:str="", iterateDays:bool=True, iterateHours:bool=True, iterate
 		isoDT = dtb.buildISODateTime(dt=dt)
 		newISODT = dtb.buildISODateTime(dt=newDT)
 		
+		#	Makes a folder containing only files from a specific day in the unproccessed folder dir
+		if folderLoop == 0:
+			currentSavingDir = "output/unprocessed/" + str(dt.year) + "-" + str(dt.month) + "-" + str(dt.day)
+			makeFolder(dir=currentSavingDir)
+			chdir(currentSavingDir)
+			folderLoop = 1
+			print("Created folder " + currentSavingDir)
+		else:
+			if (newDT.year > dt.year) or (newDT.month > dt.month) or (newDT.day > dt.day):
+				currentSavingDir = "output/unprocessed/" + str(newDT.year) + "-" + str(newDT.month) + "-" + str(newDT.day)
+				chdir(rootDir)
+				makeFolder(dir=currentSavingDir)
+				chdir(currentSavingDir)
+				folderLoop = 1
+				print("Created folder " + currentSavingDir)
+
 		#	Debugging prints
 		print(str(dt) + " is the original datetime object")
 		print(str(newDT) + " is the updated datetime object")

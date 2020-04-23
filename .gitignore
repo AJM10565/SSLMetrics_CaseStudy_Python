@@ -132,3 +132,4 @@ dmypy.json
 .vscode/
 */token.txt
 test.json
+output/
